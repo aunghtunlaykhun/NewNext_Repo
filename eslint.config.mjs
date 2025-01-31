@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-  recommendedConfig: { root: true }, // Fixed the missing parameter
+  recommendedConfig: { root: true }, 
   ignorePatterns: ["components/ui/**"],
   overrides: [
     {
