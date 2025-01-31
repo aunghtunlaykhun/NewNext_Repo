@@ -60,10 +60,11 @@ const config: Config = {
   			'space-grotesk': [
   				'var(--font-space-grotesk)'
   			]
-  		}
+  		},
+
   	}
   },
-  plugins: [tailwindcssAnimate, typography, require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate, typography],
 };
 
 export default config;
