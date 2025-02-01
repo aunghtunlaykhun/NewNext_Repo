@@ -14,27 +14,31 @@ import ROUTES from '@/constants/routes'
 import { Button } from '@/components/ui/button'
 import NavLinks from './NavLinks'
 
-const MobileNavigation = () => {
+const MobileNavigation = ({isMobileView}:{isMobileView:boolean}) => {
   return (
+    
     <Sheet>
   <SheetTrigger asChild>
     <Image src="/icons/hamburger.svg" alt="Menu" width={36} height={36} className='invert-colors sm:hidden'/>
   </SheetTrigger>
-  <SheetContent side='left' className='background-light900_dark200 border-none'>
-    
+  <SheetContent side='left' className={`background-light900_dark200`}>
+      
       <SheetTitle className='hidden'>Are you absolutely sure?</SheetTitle>
-      <Link href="/" className='flex items-center gap-1'>
-        <Image src="/images/site-logo.svg" className='' alt="Devflow logo" width={23} height={23} />
-        <p className='h2-bold font-space-grotesk text-dark-100 dark:text-light-900'>
-            Dev 
-            <span className='text-primary-500'>Flow</span>
-        </p>
-      </Link>
+      {
+        isMobileView && 
+        <Link href="/" className='flex items-center gap-1'>
+          <Image src="/images/site-logo.svg" className='' alt="Devflow logo" width={23} height={23} />
+          <p className='h2-bold font-space-grotesk text-dark-100 dark:text-light-900'>
+              Dev 
+              <span className='text-primary-500'>Flow</span>
+          </p>
+        </Link>
+      }
 
       <div className='no-scrollbar h-[calc(100vh-80px)] flex flex-col justify-between overflow-y-auto'>
         <SheetClose asChild>
             <section className="flex h-full flex-col gap-6 pt-16">
-                <NavLinks isMobileView={true} />
+                <NavLinks isMobileView={isMobileView}/>
             </section>
         </SheetClose>
         <div className="flex flex-col gap-3">
@@ -58,6 +62,7 @@ const MobileNavigation = () => {
    
   </SheetContent>
 </Sheet>
+
   )
 }
 

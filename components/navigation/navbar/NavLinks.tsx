@@ -21,7 +21,7 @@ const NavLinks = ({isMobileView}:{isMobileView:boolean}) => {
                 else return null;
             }
             const LinkComponent = (
-                <Link href={item.route} key={item.label} className={cn(isActive?'primary-gradient roundedl-lg text-light-900':'text-dark300_light900','flex items-center justify-start gap-4 bg-transparent p-4')}>
+                <Link href={item.route} key={item.label} className={cn(isActive?'primary-gradient rounded-lg text-light-900':'text-dark300_light900','flex items-center justify-start gap-4 bg-transparent p-4')}>
                     <Image src={item.imgURL} alt={item.label} width={23} height={23} className={cn({'invert-colors':!isActive})}/>
                     <p className={cn(isActive?'base-bold':'base-medium',!isMobileView && 'max-lg:hidden')}>{item.label}</p>
                 </Link>

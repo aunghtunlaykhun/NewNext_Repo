@@ -23,17 +23,17 @@ export const sidebarLinks = [
   },
   {
     imgURL: "/icons/tag.svg",
-    route: ROUTES.TAGS,
+    route: '/tags',
     label: "Tags",
   },
   {
     imgURL: "/icons/user.svg",
-    route: ROUTES.PROFILE,
+    route: '/profile',
     label: "Profile",
   },
   {
     imgURL: "/icons/question.svg",
-    route: ROUTES.ASK_QUESTION,
+    route: '/ask-question',
     label: "Ask a question",
   },
 ];
