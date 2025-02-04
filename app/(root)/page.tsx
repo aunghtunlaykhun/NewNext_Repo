@@ -1,8 +1,11 @@
+import Link from "next/link";
+
+import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
-import Link from "next/link";
+
 
 const questions = [
   {
@@ -14,7 +17,7 @@ const questions = [
       {_id:'2',name:'React'}
     ],
     author:{
-      _id:'1',name:'John Doe'
+      _id:'1',name:'John Doe',image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s'
     },
     upvotes:10,
     answers:5,
@@ -30,12 +33,12 @@ const questions = [
       {_id:'2',name:'Javascript'}
     ],
     author:{
-      _id:'1',name:'John Doe'
+      _id:'1',name:'John Doe',image:'https://cdni.iconscout.com/illustration/premium/thumb/woman-profile-illustration-download-in-svg-png-gif-file-formats--young-female-girl-avatar-portraits-pack-people-illustrations-6590622.png'
     },
     upvotes:10,
     answers:5,
     views:100,
-    createdAt:new Date(),
+    createdAt:new Date('2021-09-01'),
   }
 ]
 
@@ -68,7 +71,7 @@ export default async function Home({searchParams}:SearchParams) {
       <div className="mt-10 flex w-full flex-col gap-6">
           {
             filteredQuestions.map((question)=>(
-              <h1 key={question._id}>{question.title}</h1>
+              <QuestionCard key={question._id} question={question} />
             ))
           }
       </div>
