@@ -1,79 +1,29 @@
 import Link from "next/link";
 
 import QuestionCard from "@/components/cards/QuestionCard";
+import DataRenderer from "@/components/DataRenderer";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
-import handleError from "@/lib/handlers/error";
-import dbConnect from "@/lib/mongoose";
-
-const questions = [
-  {
-    _id: "1",
-    title: "How to learn React?",
-    description: "I want to learn React , can you help me?",
-    tags: [
-      { _id: "1", name: "React" },
-      { _id: "2", name: "React" },
-    ],
-    author: {
-      _id: "1",
-      name: "John Doe",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
-    },
-    upvotes: 10,
-    answers: 5,
-    views: 100,
-    createdAt: new Date(),
-  },
-  {
-    _id: "2",
-    title: "How to learn JavaScript?",
-    description: "I want to learn React , can you help me?",
-    tags: [
-      { _id: "1", name: "Javascript" },
-      { _id: "2", name: "Javascript" },
-    ],
-    author: {
-      _id: "1",
-      name: "John Doe",
-      image:
-        "https://cdni.iconscout.com/illustration/premium/thumb/woman-profile-illustration-download-in-svg-png-gif-file-formats--young-female-girl-avatar-portraits-pack-people-illustrations-6590622.png",
-    },
-    upvotes: 10,
-    answers: 5,
-    views: 100,
-    createdAt: new Date("2021-09-01"),
-  },
-];
-
+import { EMPTY_QUESTON } from "@/constants/state";
+import { getAllQuestions } from "@/lib/actions/question.action";
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
 
-const test = async () => {
-  try {
-    await dbConnect();
-  } catch (error) {
-    return handleError(error);
-  }
-};
-
 export default async function Home({ searchParams }: SearchParams) {
-  const { query = "", filter = "" } = await searchParams;
-  await test();
+  // const session = await auth();
+  const { page, pageSize, query, filter } = await searchParams;
 
-  const filteredQuestions = questions.filter((question) => {
-    const matchesQuery = question.title
-      .toLowerCase()
-      .includes(query.toLowerCase());
-    const matchesFilter = filter
-      ? question.tags[0].name.toLowerCase() === filter.toLowerCase()
-      : true;
-    return matchesQuery && matchesFilter;
+  const { success, data, error } = await getAllQuestions({
+    page: Number(page) || 1,
+    pageSize: Number(pageSize) || 10,
+    query: query || "",
+    filter: filter || "",
   });
+
+  const { questions } = data || {};
 
   return (
     <>
@@ -96,11 +46,38 @@ export default async function Home({ searchParams }: SearchParams) {
         />
       </section>
       <HomeFilter />
-      <div className="mt-10 flex w-full flex-col gap-6">
-        {filteredQuestions.map((question) => (
-          <QuestionCard key={question._id} question={question} />
-        ))}
-      </div>
+      <DataRenderer
+        success={success}
+        error={error}
+        data={questions}
+        empty={EMPTY_QUESTON}
+        render={(questions) => (
+          <div className="mt-10 flex w-full flex-col gap-6">
+            {questions.map((question) => (
+              <QuestionCard key={question._id} question={question} />
+            ))}
+          </div>
+        )}
+      />
+      {/* {success ? (
+        <div className="mt-10 flex w-full flex-col gap-6">
+          {questions && questions.length > 0 ? (
+            questions.map((question) => (
+              <QuestionCard key={question._id} question={question} />
+            ))
+          ) : (
+            <div className="mt-10 flex w-full items-center justify-center">
+              <p className="text-dark400_light700">No questions found</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="mt-10 flex items-center justify-center">
+          <p className="text-dark400_light700">
+            {error?.message || "Failed to fetch questions"}
+          </p>
+        </div>
+      )} */}
     </>
   );
 }

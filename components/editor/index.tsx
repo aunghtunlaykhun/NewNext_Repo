@@ -1,129 +1,128 @@
-'use client';
+"use client";
 
-import '@mdxeditor/editor/style.css'
-import './dark-editor.css'
 import {
-    headingsPlugin,
-    listsPlugin,
-    quotePlugin,
-    thematicBreakPlugin,
-    markdownShortcutPlugin,
-    MDXEditor,
-    type MDXEditorMethods,
-    toolbarPlugin,
-    ConditionalContents,
-    ChangeCodeMirrorLanguage,
-    UndoRedo,
-    Separator,
-    BoldItalicUnderlineToggles,
-    ListsToggle,
-    CreateLink,
-    InsertImage,
-    InsertTable,
-    InsertThematicBreak,
-    InsertCodeBlock,
-    linkPlugin,
-    tablePlugin,
-    codeBlockPlugin,
-    codeMirrorPlugin,
-    diffSourcePlugin,
-    linkDialogPlugin,
-    imagePlugin,
-  } from '@mdxeditor/editor'
-import {basicDark} from 'cm6-theme-basic-dark';
+  MDXEditor,
+  UndoRedo,
+  BoldItalicUnderlineToggles,
+  toolbarPlugin,
+  CodeToggle,
+  InsertCodeBlock,
+  codeBlockPlugin,
+  headingsPlugin,
+  listsPlugin,
+  linkPlugin,
+  quotePlugin,
+  markdownShortcutPlugin,
+  ListsToggle,
+  linkDialogPlugin,
+  CreateLink,
+  InsertImage,
+  InsertTable,
+  tablePlugin,
+  imagePlugin,
+  codeMirrorPlugin,
+  ConditionalContents,
+  ChangeCodeMirrorLanguage,
+  Separator,
+  InsertThematicBreak,
+  diffSourcePlugin,
+  MDXEditorMethods,
+} from "@mdxeditor/editor";
+import { basicDark } from "cm6-theme-basic-dark";
+import { useTheme } from "next-themes";
+import { Ref } from "react";
 
-import type { ForwardedRef } from 'react'
-import { useTheme } from 'next-themes';
-import { list } from 'postcss';
+import "@mdxeditor/editor/style.css";
+import "./dark-editor.css";
 
 interface Props {
-    value:string;
-    fieldChange:(value:string)=>void;
-    editorRef: ForwardedRef<MDXEditorMethods> | null 
+  value: string;
+  editorRef: Ref<MDXEditorMethods> | null;
+  fieldChange: (value: string) => void;
 }
 
-const Editor = ({
-    value,
-    editorRef,
-    fieldChange,
-    ...props
-  }:Props) => {
+const Editor = ({ value, editorRef, fieldChange }: Props) => {
+  const { resolvedTheme } = useTheme();
 
-    const {resolvedTheme} = useTheme();
-    const theme = resolvedTheme === 'dark' ? [basicDark] : [];
+  const themeExtension = resolvedTheme === "dark" ? [basicDark] : [];
+
   return (
     <MDXEditor
-    key={resolvedTheme}
-    markdown={value}
-    ref={editorRef}
-    className='background-light800_dark200 light-border-2 markdown-editor dark-editor grid w-full border'
-    onChange={fieldChange}
+      key={resolvedTheme}
+      markdown={value}
+      ref={editorRef}
+      onChange={fieldChange}
+      className="background-light800_dark200 light-border-2 markdown-editor dark-editor grid w-full border"
       plugins={[
         headingsPlugin(),
         listsPlugin(),
-        quotePlugin(),
         linkPlugin(),
         linkDialogPlugin(),
+        quotePlugin(),
+        markdownShortcutPlugin(),
         tablePlugin(),
         imagePlugin(),
-        thematicBreakPlugin(),
-        codeBlockPlugin({defaultCodeBlockLanguage:''}),
+        codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
         codeMirrorPlugin({
-            codeBlockLanguages:{
-                css:'css',
-                txt:'txt',
-                sql:'sql',
-                html:'html',
-                saas:'saas',
-                scss:'scss',
-                bash:'bash',
-                json:'json',
-                js:'javascript',
-                ts:'typescript',
-                '':'unspecified',
-                tsx:'Typescript (React)',
-                jsx:'Javascript (React)',
-            },
-            autoLoadLanguageSupport:true,
-            codeMirrorExtensions:theme
+          codeBlockLanguages: {
+            css: "css",
+            txt: "txt",
+            sql: "sql",
+            html: "html",
+            sass: "sass",
+            scss: "scss",
+            bash: "bash",
+            json: "json",
+            js: "javascript",
+            ts: "typescript",
+            "": "unspecified",
+            tsx: "TypeScript (React)",
+            jsx: "JavaScript (React)",
+          },
+          autoLoadLanguageSupport: true,
+          codeMirrorExtensions: themeExtension,
         }),
-        markdownShortcutPlugin(),
-        diffSourcePlugin({viewMode:'rich-text',diffMarkdown:''}),
-        markdownShortcutPlugin(),
+        diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "" }),
         toolbarPlugin({
-            toolbarContents:()=>(
-                <ConditionalContents 
-                    options={[
-                        {
-                            when:(editor)=>editor?.editorType === 'codeblock',
-                            contents:()=><ChangeCodeMirrorLanguage/>
-                        },
-                        {
-                            fallback:()=>(
-                                <>
-                                    <UndoRedo/>
-                                    <Separator/>
-                                    <BoldItalicUnderlineToggles/>
-                                    <Separator/>
-                                    <ListsToggle/>
-                                    <Separator/>
-                                    <CreateLink/>
-                                    <InsertImage/>
-                                    <Separator/>
-                                    <InsertTable/>
-                                    <InsertThematicBreak/>
-                                    <InsertCodeBlock/>
-                                </>
-                            )
-                        }
-                    ]}
-                 />
-                )
-        })
-      ]}
-      {...props}
-    />
-  )
-}
+          toolbarContents: () => (
+            <ConditionalContents
+              options={[
+                {
+                  when: (editor) => editor?.editorType === "codeblock",
+                  contents: () => <ChangeCodeMirrorLanguage />,
+                },
+                {
+                  fallback: () => (
+                    <>
+                      <UndoRedo />
+                      <Separator />
 
-export default Editor
+                      <BoldItalicUnderlineToggles />
+                      <CodeToggle />
+                      <Separator />
+
+                      <ListsToggle />
+                      <Separator />
+
+                      <CreateLink />
+                      <InsertImage />
+                      <Separator />
+
+                      <InsertTable />
+                      <InsertThematicBreak />
+                      <Separator />
+
+                      <InsertCodeBlock />
+                    </>
+                  ),
+                },
+              ]}
+            />
+          ),
+        }),
+      ]}
+    />
+  );
+};
+
+export default Editor;
