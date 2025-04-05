@@ -23,12 +23,12 @@ const NavLinks = ({
           (pathname.includes(item.route) && item.route.length > 1) ||
           pathname === item.route;
         if (item.route === "/profile") {
-          if (userId) item.route = `${item.route}/${userId}`;
+          if (userId) item.route = `profile/${userId}`;
           else return null;
         }
         const LinkComponent = (
           <Link
-            href={item.route}
+            href={item.route as string}
             key={item.label}
             className={cn(
               isActive

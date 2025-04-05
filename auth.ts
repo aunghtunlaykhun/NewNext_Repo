@@ -8,7 +8,6 @@ import { IAccountDoc } from "./database/account.model";
 import { IUserDoc } from "./database/user.model";
 import { api } from "./lib/api";
 import { SignInSchema } from "./lib/validation";
-import { ActionResponse } from "./types/global";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -23,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email
           )) as ActionResponse<IAccountDoc>;
           if (!existingAccount) return null;
-          const { data: existingUser } = (await api.users.getByid(
+          const { data: existingUser } = (await api.users.getById(
             existingAccount.userId.toString()
           )) as ActionResponse<IUserDoc>;
           if (!existingUser) return null;

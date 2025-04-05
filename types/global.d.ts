@@ -39,6 +39,13 @@ type ErrorResponse = ActionResponse<undefined> & { success: false };
 type APIErrorResponse = NextResponse<ErrorResponse>;
 type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;
 
+/*
+Use SuccessResponse<T> for successful API logic.
+Use ErrorResponse for error handling.
+Use APIResponse<T> for API route return types.
+Use APIErrorResponse for handling errors in API routes.
+ */
+
 interface RouteParams {
   params: Promise<Record<string, string>>;
   searchParams: Promise<Record<string, string>>;
@@ -59,4 +66,22 @@ interface Answer {
   createdAt: Date;
   upvotes: number;
   downvotes: number;
+}
+
+interface Collection {
+  _id: string;
+  author: string | Author;
+  question: Question;
+}
+
+interface User {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  bio?: string;
+  image?: string;
+  location?: string;
+  portfolio?: string;
+  reputation?: number;
 }
