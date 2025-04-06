@@ -56,3 +56,8 @@ export const EMPTY_ANSWERS = {
   //   href: ROUTES.HOME,
   // },
 };
+
+export const EMPTY_USERS = {
+  title: "No Users Found",
+  message: "Your're alone.The only one here. More users are coming soon!",
+};
