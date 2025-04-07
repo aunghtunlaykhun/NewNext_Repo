@@ -10,6 +10,7 @@ import { EMPTY_QUESTON } from "@/constants/state";
 import { getAllQuestions } from "@/lib/actions/question.action";
 import CommonFilter from "@/components/filters/CommonFilter";
 import { HomePageFilters } from "@/constants/filters";
+import Pagination from "@/components/Pagination";
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
@@ -25,7 +26,7 @@ export default async function Home({ searchParams }: SearchParams) {
     filter: filter || "",
   });
 
-  const { questions } = data || {};
+  const { questions, isNext } = data || {};
 
   return (
     <>
@@ -66,6 +67,7 @@ export default async function Home({ searchParams }: SearchParams) {
           </div>
         )}
       />
+      <Pagination isNext={isNext || false} page={page} />
       {/* {success ? (
         <div className="mt-10 flex w-full flex-col gap-6">
           {questions && questions.length > 0 ? (

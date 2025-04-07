@@ -1,6 +1,7 @@
 import QuestionCard from "@/components/cards/QuestionCard";
 import DataRenderer from "@/components/DataRenderer";
 import CommonFilter from "@/components/filters/CommonFilter";
+import Pagination from "@/components/Pagination";
 import LocalSearch from "@/components/search/LocalSearch";
 import { CollectionFilters } from "@/constants/filters";
 import ROUTES from "@/constants/routes";
@@ -21,7 +22,8 @@ export default async function Collection({ searchParams }: SearchParams) {
     filter: filter || "",
   });
 
-  const { collection } = data || {};
+  const { collection, isNext } = data || {};
+  console.log(isNext, "isNext in collections");
 
   return (
     <>
@@ -51,6 +53,8 @@ export default async function Collection({ searchParams }: SearchParams) {
           </div>
         )}
       />
+      <Pagination isNext={isNext || false} page={page} />
+
       {/* {success ? (
         <div className="mt-10 flex w-full flex-col gap-6">
           {questions && questions.length > 0 ? (
