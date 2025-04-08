@@ -85,4 +85,11 @@ interface User {
   location?: string;
   portfolio?: string;
   reputation?: number;
+  createdAt: Date;
+}
+
+interface BadgeCounts {
+  GOLD: number;
+  SILVER: number;
+  BRONZE: number;
 }
