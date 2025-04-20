@@ -10,8 +10,12 @@ import dbConnect from "@/lib/mongoose";
 import { SignInWithOauthSchema } from "@/lib/validation";
 
 export async function POST(req: Request) {
+  // const { provider, providerAccountId, user } = await req.json();
   const { provider, providerAccountId, user } = await req.json();
 
+  // await dbConnect();
+  // const session = await mongoose.startSession();
+  // session.startTransaction();
   await dbConnect();
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -24,6 +28,7 @@ export async function POST(req: Request) {
     });
     if (!validatedData.success)
       throw new ValidationError(validatedData.error.flatten().fieldErrors);
+
     const { name, username, email, image } = user;
     const slugifiedUsername = slugify(username, {
       lower: true,

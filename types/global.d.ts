@@ -67,6 +67,7 @@ interface Answer {
   createdAt: Date;
   upvotes: number;
   downvotes: number;
+  question: string;
 }
 
 interface Collection {

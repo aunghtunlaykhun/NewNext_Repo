@@ -1,9 +1,11 @@
-import React from 'react'
+import React from "react";
 
-const FindJobs = () => {
-  return (
-    <div>FindJobs</div>
-  )
-}
+const FindJobs = async ({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>;
+}) => {
+  return <div>FindJobs</div>;
+};
 
-export default FindJobs
+export default FindJobs;
