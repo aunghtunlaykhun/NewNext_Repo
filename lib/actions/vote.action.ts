@@ -13,6 +13,8 @@ import {
   HasVotedSchema,
   UpdateVoteCountSchema,
 } from "../validation";
+import { after } from "next/server";
+import { createInteraction } from "./interaction.action";
 
 export async function createVote(
   params: CreateVoteParams
@@ -36,6 +38,13 @@ export async function createVote(
   session.startTransaction();
 
   try {
+    const Model = targetType === "question" ? Question : Answer;
+
+    const contentDoc = await Model.findById(targetId).session(session);
+    if (!contentDoc) throw new Error("Content not found");
+
+    const contentAuthorId = contentDoc.author.toString();
+
     const existingVote = await Vote.findOne({
       author: userId,
       actionId: targetId,
@@ -83,6 +92,14 @@ export async function createVote(
         session
       );
     }
+    after(async () => {
+      await createInteraction({
+        action: voteType,
+        actionId: targetId,
+        actionTarget: targetType,
+        authorId: contentAuthorId,
+      });
+    });
 
     await session.commitTransaction();
     session.endSession();

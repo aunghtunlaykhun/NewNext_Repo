@@ -1,3 +1,4 @@
+import { IInteractionDoc } from "@/database/interaction.model";
 import { PaginatedSearchParamsSchema } from "@/lib/validation";
 
 interface SignInWithOAuthParams {
@@ -28,6 +29,10 @@ interface EditQuestionParams extends CreateQuestionParams {
   questionId: string;
 }
 
+interface DeleteQuestionParms {
+  questionId: string;
+}
+
 interface GetQuestionParams {
   questionId: string;
 }
@@ -43,6 +48,10 @@ interface IncrementViewsParams {
 interface CreateAnswerParams {
   questionId: string;
   content: string;
+}
+
+interface DeleteAnswerParams {
+  answerId: string;
 }
 
 interface GetAnswersParams extends PaginatedSearchParams {
@@ -71,7 +80,7 @@ interface CollectionBaseParams {
 }
 
 interface GetUserParams {
-  userId: String;
+  userId: string;
 }
 
 interface GetUserQuestionsParams
@@ -85,4 +94,33 @@ interface GetUserAnswersParams extends PaginatedSearchParams {
 
 interface GetUserTagsParams {
   userId: string;
+}
+
+interface CreateInteractionParams {
+  action:
+    | "view"
+    | "upvote"
+    | "downvote"
+    | "bookmark"
+    | "post"
+    | "edit"
+    | "delete"
+    | "search";
+  actionId: string;
+  authorId: string;
+  actionTarget: "question" | "answer";
+}
+
+interface UpdateReputationParams {
+  interaction: IInteractionDoc;
+  session: mongoose.ClientSession;
+  performerId: string;
+  authorId: string;
+}
+
+interface RecommendationParams {
+  userId: string;
+  query?: string;
+  skip: number;
+  limit: number;
 }

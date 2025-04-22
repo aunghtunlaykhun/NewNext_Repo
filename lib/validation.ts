@@ -1,3 +1,4 @@
+import { InteractionActionEnums } from "@/database/interaction.model";
 import { join } from "path";
 import z from "zod";
 
@@ -132,6 +133,10 @@ export const GetQuestionSchema = z.object({
   questionId: z.string().min(1, { message: "Question ID is required" }),
 });
 
+export const DeleteQuestionSchema = z.object({
+  questionId: z.string().min(1, { message: "Question id is required" }),
+});
+
 export const PaginatedSearchParamsSchema = z.object({
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().default(10),
@@ -152,6 +157,10 @@ export const AnswerSchema = z.object({
   content: z
     .string()
     .min(100, { message: "Answer has to have more than 100 characters" }),
+});
+
+export const DeleteAnswerSchema = z.object({
+  answerId: z.string().min(1, { message: "Answer Id is required" }),
 });
 
 export const AnswerServerSchema = AnswerSchema.extend({
@@ -208,4 +217,11 @@ export const GetUserAnswersSchema = PaginatedSearchParamsSchema.extend({
 
 export const GetUserTagSchema = z.object({
   userId: z.string().min(1, { message: "User ID is required" }),
+});
+
+export const CreateInteractionSchema = z.object({
+  action: z.enum(InteractionActionEnums),
+  actionTarget: z.enum(["question", "answer"]),
+  actionId: z.string().min(1, { message: "Action Id is required" }),
+  authorId: z.string().min(1, { message: "Author Id is required" }),
 });

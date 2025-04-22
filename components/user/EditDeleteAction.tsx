@@ -14,6 +14,8 @@ import {
 import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { deleteQuestion } from "@/lib/actions/question.action";
+import { deleteAnswer } from "@/lib/actions/answer.action";
 
 interface Props {
   type: "Question" | "Answer";
@@ -27,15 +29,20 @@ const EditDeleteAction = ({ type, itemId }: Props) => {
       router.push(`/questions/${itemId}/edit`);
     }
   };
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (type === "Question") {
+      await deleteQuestion({ questionId: itemId });
+
       toast({
         title: "Question deleted",
+        variant: "destructive",
         description: "Your question has been deleted successfully.",
       });
     } else if (type === "Answer") {
+      await deleteAnswer({ answerId: itemId });
       toast({
         title: "Answer deleted",
+        variant: "destructive",
         description: "Your answer has been deleted successfully",
       });
     }

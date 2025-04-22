@@ -1,6 +1,6 @@
 "use server";
 
-import mongoose, { FilterQuery } from "mongoose";
+import mongoose, { FilterQuery, Types } from "mongoose";
 
 import Question, { IQuestionDoc } from "@/database/question.model";
 import Tag, { ITagDoc } from "@/database/tag.model";
@@ -10,12 +10,21 @@ import action from "../handlers/action";
 import handleError from "../handlers/error";
 import {
   AskQuestionSchema,
+  DeleteQuestionSchema,
   EditQuestionSchema,
   GetQuestionSchema,
   IncrementViewsSchema,
   PaginatedSearchParamsSchema,
 } from "../validation";
 import dbConnect from "../mongoose";
+import { DeleteQuestionParms, RecommendationParams } from "@/types/action";
+import { api } from "../api";
+import { NotFoundError, UnauthorizedError } from "../http-errors";
+import { Answer, Collection, Interaction, Vote } from "@/database";
+import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { createInteraction } from "./interaction.action";
+import { auth } from "@/auth";
 
 export async function createQuestion(
   params: CreateQuestionParams
@@ -70,6 +79,15 @@ export async function createQuestion(
       { $push: { tags: { $each: tagIds } } },
       { session }
     );
+
+    after(async () => {
+      await createInteraction({
+        action: "post",
+        actionId: question._id.toString(),
+        actionTarget: "question",
+        authorId: userId as string,
+      });
+    });
 
     await session.commitTransaction();
 
@@ -189,6 +207,78 @@ export async function editQuestion(
   }
 }
 
+export async function deleteQuestion(
+  params: DeleteQuestionParms
+): Promise<ActionResponse> {
+  const validationResult = await action({
+    params,
+    schema: DeleteQuestionSchema,
+    authorize: true,
+  });
+  if (validationResult instanceof Error)
+    return handleError(validationResult) as ErrorResponse;
+  const { questionId } = validationResult.params!;
+  const { user } = validationResult.session!;
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+    const question = await Question.findById(questionId).session(session);
+
+    if (!question) {
+      throw new Error("Question not found");
+    }
+
+    if (question.author.toString() !== user?.id) {
+      throw new Error("You are not authorized to delete this question");
+    }
+
+    await Collection.deleteMany({ question: questionId }).session(session);
+
+    await TagQuestion.deleteMany({ question: questionId }).session(session);
+
+    if (question.tags.length > 0) {
+      await Tag.updateMany(
+        { _id: { $in: question.tags } },
+        { $inc: { questions: -1 } },
+        { session }
+      );
+    }
+
+    await Vote.deleteMany({
+      actionId: questionId,
+      actionType: "Question",
+    }).session(session);
+
+    const answers = await Answer.find({ question: questionId }).session(
+      session
+    );
+    if (answers.length > 0) {
+      await Answer.deleteMany({ question: questionId }).session(session);
+
+      await Vote.deleteMany({
+        actionId: { $in: answers.map((answer) => answer.id) },
+        actionType: "answer",
+      }).session(session);
+    }
+
+    await Question.findByIdAndDelete(questionId);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    revalidatePath(`/profile/${user?.id}`);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    return handleError(error) as ErrorResponse;
+  }
+}
+
 export async function getQuestion(
   params: GetQuestionParams
 ): Promise<ActionResponse<Question>> {
@@ -232,34 +322,50 @@ export async function getAllQuestions(
   const limit = Number(pageSize);
 
   const filterQuery: FilterQuery<typeof Question> = {};
-
-  if (filter === "recommended")
-    return { success: true, data: { questions: [], isNext: false } };
-
-  if (query) {
-    filterQuery.$or = [
-      { title: { $regex: new RegExp(query, "i") } },
-      { content: { $regex: new RegExp(query, "i") } },
-    ];
-  }
   let sortCriteria = {};
-  switch (filter) {
-    case "newest":
-      sortCriteria = { createdAt: -1 };
-      break;
-    case "unanswered":
-      filterQuery.answer = 0;
-      sortCriteria = { createdAt: -1 };
-      break;
-    case "popular":
-      sortCriteria = { upvotes: -1 };
-      break;
-    default:
-      sortCriteria = { createdAt: -1 };
-      break;
-  }
-
   try {
+    //recommendation
+
+    if (filter === "recommended") {
+      const session = await auth();
+      const userId = session?.user?.id;
+
+      if (!userId) {
+        return { success: true, data: { questions: [], isNext: false } };
+      }
+
+      const recommended = await getRecommendedQuestions({
+        userId,
+        query,
+        skip,
+        limit,
+      });
+
+      return { success: true, data: recommended };
+    }
+
+    if (query) {
+      filterQuery.$or = [
+        { title: { $regex: new RegExp(query, "i") } },
+        { content: { $regex: new RegExp(query, "i") } },
+      ];
+    }
+    switch (filter) {
+      case "newest":
+        sortCriteria = { createdAt: -1 };
+        break;
+      case "unanswered":
+        filterQuery.answer = 0;
+        sortCriteria = { createdAt: -1 };
+        break;
+      case "popular":
+        sortCriteria = { upvotes: -1 };
+        break;
+      default:
+        sortCriteria = { createdAt: -1 };
+        break;
+    }
+
     const totalQuestions = await Question.countDocuments(filterQuery);
     const questions = await Question.find(filterQuery)
       .populate("tags", "name")
@@ -320,4 +426,67 @@ export async function getHotQuestions(): Promise<ActionResponse<Question[]>> {
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
+}
+
+export async function getRecommendedQuestions({
+  userId,
+  query,
+  skip,
+  limit,
+}: RecommendationParams) {
+  // Get user's recent interactions
+  const interactions = await Interaction.find({
+    user: new Types.ObjectId(userId),
+    actionType: "question",
+    action: { $in: ["view", "upvote", "bookmark", "post"] },
+  })
+    .sort({ createdAt: -1 })
+    .limit(50)
+    .lean();
+
+  const interactedQuestionIds = interactions.map((i) => i.actionId);
+
+  // Get tags from interacted questions
+  const interactedQuestions = await Question.find({
+    _id: { $in: interactedQuestionIds },
+  }).select("tags");
+
+  // Get unique tags
+  const allTags = interactedQuestions.flatMap((q) =>
+    q.tags.map((tag: Types.ObjectId) => tag.toString())
+  );
+
+  // Remove duplicates
+  const uniqueTagIds = [...new Set(allTags)];
+
+  const recommendedQuery: FilterQuery<typeof Question> = {
+    // exclude interacted questions
+    _id: { $nin: interactedQuestionIds },
+    // exclude the user's own questions
+    author: { $ne: new Types.ObjectId(userId) },
+    // include questions with any of the unique tags
+    tags: { $in: uniqueTagIds.map((id) => new Types.ObjectId(id)) },
+  };
+
+  if (query) {
+    recommendedQuery.$or = [
+      { title: { $regex: query, $options: "i" } },
+      { content: { $regex: query, $options: "i" } },
+    ];
+  }
+
+  const total = await Question.countDocuments(recommendedQuery);
+
+  const questions = await Question.find(recommendedQuery)
+    .populate("tags", "name")
+    .populate("author", "name image")
+    .sort({ upvotes: -1, views: -1 }) // prioritizing engagement
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  return {
+    questions: JSON.parse(JSON.stringify(questions)),
+    isNext: total > skip + questions.length,
+  };
 }
