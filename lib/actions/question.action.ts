@@ -17,7 +17,14 @@ import {
   PaginatedSearchParamsSchema,
 } from "../validation";
 import dbConnect from "../mongoose";
-import { DeleteQuestionParms, RecommendationParams } from "@/types/action";
+import {
+  CreateQuestionParams,
+  DeleteQuestionParms,
+  EditQuestionParams,
+  GetQuestionParams,
+  IncrementViewsParams,
+  RecommendationParams,
+} from "@/types/action";
 import { api } from "../api";
 import { NotFoundError, UnauthorizedError } from "../http-errors";
 import { Answer, Collection, Interaction, Vote } from "@/database";

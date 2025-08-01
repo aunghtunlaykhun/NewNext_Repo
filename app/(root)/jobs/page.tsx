@@ -1,20 +1,12 @@
 import JobCard from "@/components/cards/JobCard";
-import CommonFilter from "@/components/filters/CommonFilter";
 import JobFilter from "@/components/filters/JobFilter";
 import Pagination from "@/components/Pagination";
-import LocalSearch from "@/components/search/LocalSearch";
-import { UserFilters } from "@/constants/filters";
-import {
-  fetchCountries,
-  fetchJobs,
-  fetchLocation,
-} from "@/lib/actions/job.action";
+import { fetchCountries, fetchJobs } from "@/lib/actions/job.action";
 import React from "react";
 
 const Jobs = async ({ searchParams }: RouteParams) => {
   const { query, location, page } = await searchParams;
   const countries = await fetchCountries();
-  const userLocation = await fetchLocation();
 
   const {
     success,
@@ -25,7 +17,6 @@ const Jobs = async ({ searchParams }: RouteParams) => {
     location: location ? location : "United States",
     page: "2",
   });
-  console.log("job data after normalize", jobs);
   const parsedPage = parseInt(page ?? 1);
 
   if (!success) {
@@ -46,8 +37,8 @@ const Jobs = async ({ searchParams }: RouteParams) => {
       </div>
 
       <section className="light-border mb-9 mt-11 flex flex-col gap-9 border-b pb-9">
-        {jobs.length > 0 ? (
-          jobs
+        {jobs!.length > 0 ? (
+          jobs!
             .filter((job: Job) => job.job_title)
             .map((job: Job) => <JobCard key={job.job_id} job={job} />)
         ) : (
@@ -57,7 +48,7 @@ const Jobs = async ({ searchParams }: RouteParams) => {
           </div>
         )}
       </section>
-      {jobs?.length > 0 && (
+      {jobs!.length > 0 && (
         <Pagination page={parsedPage} isNext={jobs?.length === 10} />
       )}
     </>

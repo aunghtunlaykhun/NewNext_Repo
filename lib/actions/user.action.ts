@@ -11,7 +11,13 @@ import {
   UpdateUserSchema,
 } from "../validation";
 import { Answer, Question, User } from "@/database";
-import { GetUserParams, UpdateUserParams } from "@/types/action";
+import {
+  GetUserAnswersParams,
+  GetUserParams,
+  GetUserQuestionsParams,
+  GetUserTagsParams,
+  UpdateUserParams,
+} from "@/types/action";
 import { assignBadges } from "../utils";
 
 export async function getUsers(

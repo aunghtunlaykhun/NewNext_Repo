@@ -15,6 +15,12 @@ import {
 } from "../validation";
 import { after } from "next/server";
 import { createInteraction } from "./interaction.action";
+import {
+  CreateVoteParams,
+  HasVotedParams,
+  HasVotedResponse,
+  UpdateVoteCountParams,
+} from "@/types/action";
 
 export async function createVote(
   params: CreateVoteParams

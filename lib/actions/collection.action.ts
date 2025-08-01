@@ -12,6 +12,7 @@ import {
   CollectionBaseSchema,
   PaginatedSearchParamsSchema,
 } from "../validation";
+import { CollectionBaseParams } from "@/types/action";
 
 export async function toggleSaveQuestion(
   params: CollectionBaseParams

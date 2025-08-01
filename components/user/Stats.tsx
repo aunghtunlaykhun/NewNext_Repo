@@ -4,7 +4,7 @@ import Image from "next/image";
 interface Props {
   totalAnswers: number;
   totalQuestions: number;
-  badges: BadgeCounts;
+  badges: Badges;
   reputationPoints: number;
 }
 

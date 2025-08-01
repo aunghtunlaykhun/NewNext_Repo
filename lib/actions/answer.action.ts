@@ -14,7 +14,11 @@ import {
   DeleteAnswerSchema,
   GetAnswersSchema,
 } from "../validation";
-import { DeleteAnswerParams } from "@/types/action";
+import {
+  CreateAnswerParams,
+  DeleteAnswerParams,
+  GetAnswersParams,
+} from "@/types/action";
 import { after } from "next/server";
 import { createInteraction } from "./interaction.action";
 

@@ -8,6 +8,7 @@ import {
   GetTagQuestionsSchema,
   PaginatedSearchParamsSchema,
 } from "../validation";
+import { GetTagQuestionParams } from "@/types/action";
 
 export async function getTags(
   params: PaginatedSearchParams
