@@ -8,9 +8,10 @@ import {
   GetUserQuestionSchema,
   GetUserSchema,
   PaginatedSearchParamsSchema,
+  UpdateUserSchema,
 } from "../validation";
 import { Answer, Question, User } from "@/database";
-import { GetUserParams } from "@/types/action";
+import { GetUserParams, UpdateUserParams } from "@/types/action";
 import { assignBadges } from "../utils";
 
 export async function getUsers(
@@ -303,6 +304,36 @@ export async function getUserStats(params: GetUserParams): Promise<
         totalQuestions: questionStats.count,
         totalAnswers: answerStats.count,
         badges,
+      },
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function updateUser(
+  params: UpdateUserParams
+): Promise<ActionResponse<{ user: User }>> {
+  const validationResult = await action({
+    params,
+    schema: UpdateUserSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { user } = validationResult.session!;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(user?.id, params, {
+      new: true,
+    });
+    return {
+      success: true,
+      data: {
+        user: JSON.parse(JSON.stringify(updatedUser)),
       },
     };
   } catch (error) {

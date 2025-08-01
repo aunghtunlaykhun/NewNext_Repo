@@ -23,8 +23,7 @@ export default async function Collection({ searchParams }: SearchParams) {
   });
 
   const { collection, isNext } = data || {};
-  console.log(isNext, "isNext in collections");
-
+  console.log(collection, "Collection");
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">Saved Questions</h1>
@@ -47,9 +46,13 @@ export default async function Collection({ searchParams }: SearchParams) {
         empty={EMPTY_QUESTON}
         render={(collection) => (
           <div className="mt-10 flex w-full flex-col gap-6">
-            {collection.map((item) => (
-              <QuestionCard key={item._id} question={item.question} />
-            ))}
+            {/* {collection.length > 0 ? (
+              collection.map((item) => (
+                <QuestionCard key={item._id} question={item.question} />
+              ))
+            ) : (
+              <div>No collection yet</div>
+            )} */}
           </div>
         )}
       />

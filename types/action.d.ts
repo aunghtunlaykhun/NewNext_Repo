@@ -124,3 +124,22 @@ interface RecommendationParams {
   skip: number;
   limit: number;
 }
+
+interface JobFilterParams {
+  query: string;
+  page: string;
+  location: string | null;
+}
+
+interface GlobalSearchParams {
+  query: string;
+  type: string | null;
+}
+
+interface UpdateUserParams {
+  name: string;
+  username: string;
+  bio: string;
+  location: string;
+  portfolio: string;
+}

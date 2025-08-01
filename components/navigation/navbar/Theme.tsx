@@ -10,9 +10,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
-const Theme = ()=> {
+const Theme = () => {
   const { setTheme, resolvedTheme: currentTheme } = useTheme();
+  const [isMount, setIsMount] = useState(false);
+
+  useEffect(() => {
+    setIsMount(true);
+  }, []);
+
+  if (!isMount) return null;
 
   return (
     <DropdownMenu>
@@ -85,6 +93,6 @@ const Theme = ()=> {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};
 
 export default Theme;

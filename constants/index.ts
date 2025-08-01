@@ -16,7 +16,7 @@ export const sidebarLinks = [
   },
   {
     imgURL: "/icons/suitcase.svg",
-    route: "/find-jobs",
+    route: "/jobs",
     label: "Find Jobs",
   },
   {
@@ -63,3 +63,10 @@ export const BADGE_CRITERIA = {
     GOLD: 100000,
   },
 };
+
+export enum API_NAME {
+  HIRING_MANAGER = "Hiring Manager",
+  INDEED_JOBS = "Indeed Jobs",
+  INTERNSHIPS = "Internships",
+  UPWORK_JOBS = "Upwork Jobs",
+}

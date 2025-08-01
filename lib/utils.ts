@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 import { techMap } from "@/constants/techMap";
-import { BADGE_CRITERIA } from "@/constants";
+import { API_NAME, BADGE_CRITERIA } from "@/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -80,6 +80,80 @@ export const formatNumber = (num: number) => {
     return (num / 1000).toFixed(1) + "K";
   } else {
     return num.toString();
+  }
+};
+
+export const normalizeJobData = (apiName: string, data: any) => {
+  switch (apiName) {
+    case API_NAME.HIRING_MANAGER:
+      return {
+        job_id: data.id || "",
+        employer_logo: data.employer_logo || "",
+        employer_name: data.ai_hiring_manager_name || "",
+        employer_website: data.li_hiring_manager_url || "",
+        job_employment_type: data.title || "",
+        job_title: data.title || "",
+        job_description: data.li_hiring_manager_title || "",
+        job_apply_link: data.url || "",
+        job_city: data.locations_derived[0] || "",
+        job_state: data.locations_derived[0] || "",
+        job_country: data.locations_derived[0] || "",
+      };
+    case API_NAME.INDEED_JOBS:
+      return {
+        job_id: data.slug || "",
+        employer_logo: data.company_logo_url || "",
+        employer_name: data.company_name || "",
+        employer_website: data.company_website || "",
+        job_employment_type: data.job_type || "",
+        job_title: data.job_title || "",
+        job_description: data.description || "",
+        job_apply_link: data.job_url || "",
+        job_city: data.job_location || "",
+        job_state: data.job_state || "",
+        job_country: data.job_country || "",
+      };
+    case API_NAME.INTERNSHIPS:
+      return {
+        job_id: data.id.toString() || "",
+        employer_logo: data.organization_logo || "",
+        employer_name: data.recruiter_name || "",
+        employer_website: data.linkedin_org_url || "",
+        job_employment_type: data.employment_type[0] || "",
+        job_title: data.title || "",
+        job_description: data.linkedin_org_description || "",
+        job_apply_link: data.url || "",
+        job_city: data.locations_raw[0].address.addressLocality || "",
+        job_state: data.location_raw[0].address.addressRegion || "",
+        job_country: data.location_raw[0].address.addressCountry || "",
+      };
+    case API_NAME.UPWORK_JOBS:
+      return {
+        job_id: data.id.toString() || "",
+        employer_logo: data.company_logo_url || "",
+        employer_name: data.company_name || "",
+        employer_website: data.company_website || "",
+        job_employment_type: data.job_type || "full time",
+        job_title: data.title || "",
+        job_description: data.description_text || "",
+        job_apply_link: data.url || "",
+        job_city: data.client_city || "",
+        job_state: data.client_city || "",
+        job_country: data.client_country || "",
+      };
+    default:
+      return {
+        employer_logo: "",
+        employer_name: "",
+        employer_website: "",
+        job_employment_type: "",
+        job_title: "",
+        job_description: "",
+        job_apply_link: "",
+        job_city: "",
+        job_state: "",
+        job_country: "",
+      };
   }
 };
 
